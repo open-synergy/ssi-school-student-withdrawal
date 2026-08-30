@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 OpenSynergy Indonesia
+     Copyright 2026 PT. Simetri Sinergi Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+<record id="school_student_withdrawal_view_search" model="ir.ui.view">
+    <field name="name">school_student_withdrawal - search</field>
+    <field name="model">school_student_withdrawal</field>
+    <field
+            name="inherit_id"
+            ref="ssi_transaction_mixin.mixin_transaction_view_search"
+        />
+    <field name="mode">primary</field>
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//search" position="inside">
+                <field name="student_id" />
+                <field name="reason_type" />
+                <group expand="0" string="Group By">
+                    <filter
+                            name="group_by_reason_type"
+                            string="Reason Type"
+                            context="{'group_by': 'reason_type'}"
+                        />
+                    <filter
+                            name="group_by_student_id"
+                            string="Student"
+                            context="{'group_by': 'student_id'}"
+                        />
+                </group>
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="school_student_withdrawal_view_tree" model="ir.ui.view">
+    <field name="name">school_student_withdrawal - tree</field>
+    <field name="model">school_student_withdrawal</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_tree" />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="date" />
+                <field name="student_id" />
+                <field name="reason_type" />
+                <field name="effective_date" />
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="school_student_withdrawal_view_form" model="ir.ui.view">
+    <field name="name">school_student_withdrawal - form</field>
+    <field name="model">school_student_withdrawal</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_form" />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="student_id" />
+                <field name="active_enrollment_id" readonly="1" />
+            </xpath>
+            <xpath expr="//group[@name='header_right']" position="inside">
+                <field name="date" />
+                <field name="effective_date" />
+                <field name="reason_type" />
+            </xpath>
+            <xpath expr="//page[1]" position="before">
+                <page name="withdrawal" string="Withdrawal Details">
+                    <group name="withdrawal_reason" string="Reason">
+                        <field name="reason" nolabel="1" />
+                    </group>
+                </page>
+            </xpath>
+        </data>
+    </field>
+</record>
+
+<record id="school_student_withdrawal_action" model="ir.actions.act_window">
+    <field name="name">Student Withdrawals</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">school_student_withdrawal</field>
+    <field name="view_mode">tree,form</field>
+</record>
+
+<menuitem
+        id="school_student_withdrawal_menu"
+        name="Student Withdrawals"
+        parent="ssi_school.menu_school_student_activity"
+        action="school_student_withdrawal_action"
+        groups="school_student_withdrawal_viewer_group"
+        sequence="40"
+    />
+
+</odoo>

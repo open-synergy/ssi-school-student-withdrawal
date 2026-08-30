@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 OpenSynergy Indonesia
+     Copyright 2026 PT. Simetri Sinergi Indonesia
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+<record id="sequence_school_student_withdrawal" model="ir.sequence">
+    <field name="name">School Student Withdrawal</field>
+    <field name="code">school_student_withdrawal</field>
+    <field name="padding">6</field>
+    <field name="prefix">SW/%(range_year)s/</field>
+    <field eval="1" name="number_next" />
+    <field eval="1" name="number_increment" />
+    <field name="use_date_range" eval="1" />
+</record>
+</odoo>
