@@ -160,6 +160,13 @@ class SchoolStudentWithdrawal(models.Model):
     )
 
     def _get_target_student_state(self):
+        """Resolve the ``school_student`` state this withdrawal leads to.
+
+        ``reason_type`` ``resignation`` maps to ``resigned``; both
+        ``dropout`` and ``no_news`` map to ``dropped``.
+
+        :return: ``"resigned"`` or ``"dropped"``
+        """
         self.ensure_one()
         if self.reason_type == "resignation":
             return "resigned"
@@ -167,6 +174,13 @@ class SchoolStudentWithdrawal(models.Model):
 
     @api.constrains("state", "student_id")
     def _check_student_state_allowed(self):
+        """Enforce that ``student_id`` stays in an allowed state.
+
+        Raises ``ValidationError`` for any record whose
+        ``_check_student_state_allowed_condition`` returns ``False`` --
+        i.e. the withdrawal is ``confirm``/``done`` and the student is
+        not Enrolled, On Leave, or Suspended.
+        """
         for record in self.sudo():
             if not record._check_student_state_allowed_condition():
                 error_message = (
@@ -189,6 +203,16 @@ state before this withdrawal can be confirmed or completed
                 raise ValidationError(error_message)
 
     def _check_student_state_allowed_condition(self):
+        """Check whether ``student_id`` is in an allowed state.
+
+        Only evaluated while ``state`` is ``confirm`` or ``done`` --
+        it returns ``True`` (i.e. no failure) for ``draft`` and any
+        other state, and whenever ``student_id`` is empty. Fails
+        (returns ``False``) when the student's own ``state`` is not
+        one of ``enrol``, ``on_leave``, or ``suspended``.
+
+        :return: ``True`` when the state is allowed, ``False`` otherwise
+        """
         self.ensure_one()
         if self.state not in ("confirm", "done"):
             return True
@@ -198,6 +222,13 @@ state before this withdrawal can be confirmed or completed
 
     @api.constrains("state", "student_id")
     def _check_single_active_withdrawal(self):
+        """Enforce a single draft/waiting withdrawal per student.
+
+        Raises ``ValidationError`` for any record whose
+        ``_check_single_active_withdrawal_condition`` returns
+        ``False`` -- i.e. another withdrawal for the same student is
+        already ``draft`` or ``confirm``.
+        """
         for record in self.sudo():
             if not record._check_single_active_withdrawal_condition():
                 error_message = (
@@ -220,6 +251,15 @@ confirming this one
                 raise ValidationError(error_message)
 
     def _check_single_active_withdrawal_condition(self):
+        """Check that no other active withdrawal exists for the student.
+
+        Only evaluated while ``state`` is ``draft`` or ``confirm`` and
+        ``student_id`` is set. Fails (returns ``False``) when another
+        record matching ``_get_single_active_withdrawal_criteria`` is
+        found for the same student.
+
+        :return: ``True`` when no duplicate exists, ``False`` otherwise
+        """
         self.ensure_one()
         if self.state not in ("draft", "confirm") or not self.student_id:
             return True
@@ -229,6 +269,14 @@ confirming this one
         return not duplicate
 
     def _get_single_active_withdrawal_criteria(self):
+        """Build the search domain for a duplicate active withdrawal.
+
+        Extension point: override to widen or narrow what counts as
+        a conflicting withdrawal for the same student.
+
+        :return: search domain excluding ``self`` and matching
+            ``student_id`` with ``state`` in ``draft``/``confirm``
+        """
         self.ensure_one()
         return [
             ("id", "!=", self.id),
@@ -238,10 +286,23 @@ confirming this one
 
     @ssi_decorator.pre_done_check()
     def _10_check_ready(self):
+        """Run the Done pre-check that guards ``student_id``'s state.
+
+        Triggered by the ``ssi_decorator`` ``pre_done_check`` slot,
+        i.e. before this withdrawal is allowed to transition into
+        ``done``. Delegates to ``_check_done_student_state_allowed``.
+        """
         self.ensure_one()
         self._check_done_student_state_allowed()
 
     def _check_done_student_state_allowed(self):
+        """Guard that ``student_id`` is still in an allowed state.
+
+        Raises ``ValidationError`` when
+        ``_check_student_state_allowed_condition`` returns ``False``
+        at the moment this withdrawal is about to complete -- i.e.
+        the student is no longer Enrolled, On Leave, or Suspended.
+        """
         self.ensure_one()
         if not self._check_student_state_allowed_condition():
             error_message = (
@@ -264,6 +325,14 @@ Suspended state until this withdrawal is completed
 
     @ssi_decorator.post_done_action()
     def _20_apply_withdrawal(self):
+        """Transition ``student_id`` once the withdrawal is Done.
+
+        Triggered by the ``ssi_decorator`` ``post_done_action`` slot,
+        i.e. right after this withdrawal reaches ``done``. Calls
+        ``action_set_to_resigned()`` when
+        ``_get_target_student_state`` resolves to ``resigned``,
+        otherwise ``action_set_to_dropped()``.
+        """
         self.ensure_one()
         if self._get_target_student_state() == "resigned":
             self.student_id.sudo().action_set_to_resigned()
@@ -272,6 +341,13 @@ Suspended state until this withdrawal is completed
 
     @ssi_decorator.post_done_action()
     def _30_set_enrollment_result(self):
+        """Mark the student's active enrollment as Drop Out.
+
+        Triggered by the ``ssi_decorator`` ``post_done_action`` slot,
+        i.e. right after this withdrawal reaches ``done``. When
+        ``active_enrollment_id`` is set, its ``academic_year_result``
+        is written to ``drop_out``; otherwise this is a no-op.
+        """
         self.ensure_one()
         if self.active_enrollment_id:
             self.active_enrollment_id.sudo().write(
