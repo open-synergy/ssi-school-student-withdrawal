@@ -22,6 +22,7 @@ Available addons
 addon | version | maintainers | summary
 --- | --- | --- | ---
 [ssi_school_student_withdrawal](ssi_school_student_withdrawal/) | 14.0.1.1.0 |  | School Student Withdrawal
+[ssi_school_student_withdrawal_operating_unit](ssi_school_student_withdrawal_operating_unit/) | 14.0.1.0.0 |  | School Student Withdrawal + Operating Unit
 
 [//]: # (end addons)
 

@@ -9,6 +9,7 @@ setuptools.setup(
     version=version,
     install_requires=[
         'odoo14-addon-ssi_school_student_withdrawal',
+        'odoo14-addon-ssi_school_student_withdrawal_operating_unit',
     ],
     classifiers=[
         'Programming Language :: Python',
