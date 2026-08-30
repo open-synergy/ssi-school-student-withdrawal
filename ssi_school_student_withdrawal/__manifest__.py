@@ -3,7 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 {
     "name": "School Student Withdrawal",
-    "version": "14.0.1.1.0",
+    "version": "14.0.1.1.1",
     "website": "https://simetri-sinergi.id",
     # pylint: disable=line-too-long
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia, Odoo Community Association (OCA)",  # noqa: B950
