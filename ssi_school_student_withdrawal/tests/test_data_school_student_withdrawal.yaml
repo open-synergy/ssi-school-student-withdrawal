@@ -1,0 +1,824 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name: "Student Withdrawal - Resignation Full Workflow"
+    steps:
+      - step: "Setup - create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type"
+        values:
+          name: "Grade Type for Withdrawal Test 1"
+          code: "GTSW1"
+          sequence: 10
+
+      - step: "Setup - create school"
+        action: "create"
+        model: "school"
+        save_as: "school"
+        values:
+          name: "School for Withdrawal Test 1"
+          code: "SCHSW1"
+          grade_type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade"
+        values:
+          name: "Grade for Withdrawal Test 1"
+          code: "GSW1"
+          sequence: 10
+          type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "grade_class"
+        values:
+          name: "Class Withdrawal Test 1"
+          code: "CLSW1"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          capacity: 30
+
+      - step: "Setup - create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year"
+        values:
+          name: "Year Withdrawal Test 1"
+          code: "AYSW1"
+          date_start: "2024-07-01"
+          date_end: "2025-06-30"
+
+      - step: "Setup - create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term"
+        values:
+          name: "Term Withdrawal Test 1"
+          code: "TMSW1"
+          date_start: "2024-07-01"
+          date_end: "2024-12-31"
+          year_id: "EVAL: registry['academic_year'].id"
+          enrollment_state: "open"
+
+      - step: "Setup - create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "contact"
+        values:
+          name: "Student Contact Withdrawal Test 1"
+
+      - step: "Setup - create student"
+        action: "create"
+        model: "school_student"
+        save_as: "student"
+        values:
+          name: "Student Withdrawal Test 1"
+          code: "STUSW1"
+          contact_id: "EVAL: registry['contact'].id"
+          school_id: "EVAL: registry['school'].id"
+
+      - step: "Setup - create enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "enrollment"
+        values:
+          date: "2024-07-01"
+          academic_year_id: "EVAL: registry['academic_year'].id"
+          academic_term_id: "EVAL: registry['academic_term'].id"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          grade_class_id: "EVAL: registry['grade_class'].id"
+          student_id: "EVAL: registry['student'].id"
+          currency_id: "EVAL: env.company.currency_id.id"
+
+      - step: "Confirm enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create resignation withdrawal draft"
+        action: "create"
+        model: "school_student_withdrawal"
+        save_as: "withdrawal"
+        values:
+          date: "2024-08-01"
+          effective_date: "2024-08-01"
+          student_id: "EVAL: registry['student'].id"
+          reason_type: "resignation"
+          reason: "Family relocation to another city."
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
+
+      - step: "Assert withdrawal created in draft"
+        action: "assert"
+        target: "withdrawal"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Confirm withdrawal"
+        action: "call"
+        target: "withdrawal"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve withdrawal"
+        action: "call"
+        target: "withdrawal"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Assert withdrawal number generated on done"
+        action: "assert"
+        target: "withdrawal"
+        asserts:
+          name:
+            type: "value"
+            operator: "contains"
+            expected: "SW"
+
+      - step: "Assert student state is resigned"
+        action: "search"
+        model: "school_student"
+        domain:
+          - ["id", "=", "EVAL: registry['student'].id"]
+          - ["state", "=", "resigned"]
+        save_as: "check_student_resigned"
+        expect_count: 1
+
+  - name: "Student Withdrawal - Drop Out Sets Enrollment Result"
+    steps:
+      - step: "Setup - create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type"
+        values:
+          name: "Grade Type for Withdrawal Test 2"
+          code: "GTSW2"
+          sequence: 10
+
+      - step: "Setup - create school"
+        action: "create"
+        model: "school"
+        save_as: "school"
+        values:
+          name: "School for Withdrawal Test 2"
+          code: "SCHSW2"
+          grade_type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade"
+        values:
+          name: "Grade for Withdrawal Test 2"
+          code: "GSW2"
+          sequence: 10
+          type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "grade_class"
+        values:
+          name: "Class Withdrawal Test 2"
+          code: "CLSW2"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          capacity: 30
+
+      - step: "Setup - create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year"
+        values:
+          name: "Year Withdrawal Test 2"
+          code: "AYSW2"
+          date_start: "2024-07-01"
+          date_end: "2025-06-30"
+
+      - step: "Setup - create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term"
+        values:
+          name: "Term Withdrawal Test 2"
+          code: "TMSW2"
+          date_start: "2024-07-01"
+          date_end: "2024-12-31"
+          year_id: "EVAL: registry['academic_year'].id"
+          enrollment_state: "open"
+
+      - step: "Setup - create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "contact"
+        values:
+          name: "Student Contact Withdrawal Test 2"
+
+      - step: "Setup - create student"
+        action: "create"
+        model: "school_student"
+        save_as: "student"
+        values:
+          name: "Student Withdrawal Test 2"
+          code: "STUSW2"
+          contact_id: "EVAL: registry['contact'].id"
+          school_id: "EVAL: registry['school'].id"
+
+      - step: "Setup - create enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "enrollment"
+        values:
+          date: "2024-07-01"
+          academic_year_id: "EVAL: registry['academic_year'].id"
+          academic_term_id: "EVAL: registry['academic_term'].id"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          grade_class_id: "EVAL: registry['grade_class'].id"
+          student_id: "EVAL: registry['student'].id"
+          currency_id: "EVAL: env.company.currency_id.id"
+
+      - step: "Confirm enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create dropout withdrawal draft"
+        action: "create"
+        model: "school_student_withdrawal"
+        save_as: "withdrawal"
+        values:
+          date: "2024-08-01"
+          effective_date: "2024-08-01"
+          student_id: "EVAL: registry['student'].id"
+          reason_type: "dropout"
+          reason: "Chronic non-attendance without any parental response."
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
+
+      - step: "Assert withdrawal captured the active enrollment"
+        action: "assert"
+        target: "withdrawal"
+        asserts:
+          active_enrollment_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Confirm withdrawal"
+        action: "call"
+        target: "withdrawal"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve withdrawal"
+        action: "call"
+        target: "withdrawal"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Assert student state is dropped"
+        action: "search"
+        model: "school_student"
+        domain:
+          - ["id", "=", "EVAL: registry['student'].id"]
+          - ["state", "=", "dropped"]
+        save_as: "check_student_dropped"
+        expect_count: 1
+
+      - step: "Assert enrollment academic year result is drop_out"
+        action: "search"
+        model: "school_enrollment"
+        domain:
+          - ["id", "=", "EVAL: registry['enrollment'].id"]
+          - ["academic_year_result", "=", "drop_out"]
+        save_as: "check_enrollment_drop_out"
+        expect_count: 1
+
+  - name: "Student Withdrawal - No News Maps to Dropped"
+    steps:
+      - step: "Setup - create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type"
+        values:
+          name: "Grade Type for Withdrawal Test 3"
+          code: "GTSW3"
+          sequence: 10
+
+      - step: "Setup - create school"
+        action: "create"
+        model: "school"
+        save_as: "school"
+        values:
+          name: "School for Withdrawal Test 3"
+          code: "SCHSW3"
+          grade_type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade"
+        values:
+          name: "Grade for Withdrawal Test 3"
+          code: "GSW3"
+          sequence: 10
+          type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "grade_class"
+        values:
+          name: "Class Withdrawal Test 3"
+          code: "CLSW3"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          capacity: 30
+
+      - step: "Setup - create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year"
+        values:
+          name: "Year Withdrawal Test 3"
+          code: "AYSW3"
+          date_start: "2024-07-01"
+          date_end: "2025-06-30"
+
+      - step: "Setup - create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term"
+        values:
+          name: "Term Withdrawal Test 3"
+          code: "TMSW3"
+          date_start: "2024-07-01"
+          date_end: "2024-12-31"
+          year_id: "EVAL: registry['academic_year'].id"
+          enrollment_state: "open"
+
+      - step: "Setup - create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "contact"
+        values:
+          name: "Student Contact Withdrawal Test 3"
+
+      - step: "Setup - create student"
+        action: "create"
+        model: "school_student"
+        save_as: "student"
+        values:
+          name: "Student Withdrawal Test 3"
+          code: "STUSW3"
+          contact_id: "EVAL: registry['contact'].id"
+          school_id: "EVAL: registry['school'].id"
+
+      - step: "Setup - create enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "enrollment"
+        values:
+          date: "2024-07-01"
+          academic_year_id: "EVAL: registry['academic_year'].id"
+          academic_term_id: "EVAL: registry['academic_term'].id"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          grade_class_id: "EVAL: registry['grade_class'].id"
+          student_id: "EVAL: registry['student'].id"
+          currency_id: "EVAL: env.company.currency_id.id"
+
+      - step: "Confirm enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create no-news withdrawal draft"
+        action: "create"
+        model: "school_student_withdrawal"
+        save_as: "withdrawal"
+        values:
+          date: "2024-08-01"
+          effective_date: "2024-08-01"
+          student_id: "EVAL: registry['student'].id"
+          reason_type: "no_news"
+          reason: "Student and parents unreachable for over one month."
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
+
+      - step: "Confirm withdrawal"
+        action: "call"
+        target: "withdrawal"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve withdrawal"
+        action: "call"
+        target: "withdrawal"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Assert student state is dropped"
+        action: "search"
+        model: "school_student"
+        domain:
+          - ["id", "=", "EVAL: registry['student'].id"]
+          - ["state", "=", "dropped"]
+        save_as: "check_student_dropped"
+        expect_count: 1
+
+  - name: "Student Withdrawal - Confirm Blocked When Student Not Enrolled"
+    steps:
+      - step: "Setup - create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type"
+        values:
+          name: "Grade Type for Withdrawal Test 4"
+          code: "GTSW4"
+          sequence: 10
+
+      - step: "Setup - create school"
+        action: "create"
+        model: "school"
+        save_as: "school"
+        values:
+          name: "School for Withdrawal Test 4"
+          code: "SCHSW4"
+          grade_type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade"
+        values:
+          name: "Grade for Withdrawal Test 4"
+          code: "GSW4"
+          sequence: 10
+          type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "grade_class"
+        values:
+          name: "Class Withdrawal Test 4"
+          code: "CLSW4"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          capacity: 30
+
+      - step: "Setup - create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year"
+        values:
+          name: "Year Withdrawal Test 4"
+          code: "AYSW4"
+          date_start: "2024-07-01"
+          date_end: "2025-06-30"
+
+      - step: "Setup - create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term"
+        values:
+          name: "Term Withdrawal Test 4"
+          code: "TMSW4"
+          date_start: "2024-07-01"
+          date_end: "2024-12-31"
+          year_id: "EVAL: registry['academic_year'].id"
+          enrollment_state: "open"
+
+      - step: "Setup - create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "contact"
+        values:
+          name: "Student Contact Withdrawal Test 4"
+
+      - step: "Setup - create student"
+        action: "create"
+        model: "school_student"
+        save_as: "student"
+        values:
+          name: "Student Withdrawal Test 4"
+          code: "STUSW4"
+          contact_id: "EVAL: registry['contact'].id"
+          school_id: "EVAL: registry['school'].id"
+
+      - step: "Setup - create enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "enrollment"
+        values:
+          date: "2024-07-01"
+          academic_year_id: "EVAL: registry['academic_year'].id"
+          academic_term_id: "EVAL: registry['academic_term'].id"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          grade_class_id: "EVAL: registry['grade_class'].id"
+          student_id: "EVAL: registry['student'].id"
+          currency_id: "EVAL: env.company.currency_id.id"
+
+      - step: "Confirm enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Graduate the student"
+        action: "call"
+        target: "student"
+        method: "action_set_to_graduate"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "graduate"
+
+      - step: "Create withdrawal draft for graduated student"
+        action: "create"
+        model: "school_student_withdrawal"
+        save_as: "withdrawal"
+        values:
+          date: "2024-08-01"
+          student_id: "EVAL: registry['student'].id"
+          reason_type: "dropout"
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
+
+      - step: "Assert withdrawal created in draft"
+        action: "assert"
+        target: "withdrawal"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Confirming the withdrawal must be rejected"
+        action: "write"
+        target: "withdrawal"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "not in Enrolled, On Leave, or Suspended"
+        values:
+          state: "confirm"
+
+  - name: "Student Withdrawal - Only One Active Withdrawal Per Student"
+    steps:
+      - step: "Setup - create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type"
+        values:
+          name: "Grade Type for Withdrawal Test 5"
+          code: "GTSW5"
+          sequence: 10
+
+      - step: "Setup - create school"
+        action: "create"
+        model: "school"
+        save_as: "school"
+        values:
+          name: "School for Withdrawal Test 5"
+          code: "SCHSW5"
+          grade_type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade"
+        action: "create"
+        model: "school_grade"
+        save_as: "grade"
+        values:
+          name: "Grade for Withdrawal Test 5"
+          code: "GSW5"
+          sequence: 10
+          type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create grade class"
+        action: "create"
+        model: "school_grade_class"
+        save_as: "grade_class"
+        values:
+          name: "Class Withdrawal Test 5"
+          code: "CLSW5"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          capacity: 30
+
+      - step: "Setup - create academic year"
+        action: "create"
+        model: "school_academic_year"
+        save_as: "academic_year"
+        values:
+          name: "Year Withdrawal Test 5"
+          code: "AYSW5"
+          date_start: "2024-07-01"
+          date_end: "2025-06-30"
+
+      - step: "Setup - create academic term"
+        action: "create"
+        model: "school_academic_term"
+        save_as: "academic_term"
+        values:
+          name: "Term Withdrawal Test 5"
+          code: "TMSW5"
+          date_start: "2024-07-01"
+          date_end: "2024-12-31"
+          year_id: "EVAL: registry['academic_year'].id"
+          enrollment_state: "open"
+
+      - step: "Setup - create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "contact"
+        values:
+          name: "Student Contact Withdrawal Test 5"
+
+      - step: "Setup - create student"
+        action: "create"
+        model: "school_student"
+        save_as: "student"
+        values:
+          name: "Student Withdrawal Test 5"
+          code: "STUSW5"
+          contact_id: "EVAL: registry['contact'].id"
+          school_id: "EVAL: registry['school'].id"
+
+      - step: "Setup - create enrollment"
+        action: "create"
+        model: "school_enrollment"
+        save_as: "enrollment"
+        values:
+          date: "2024-07-01"
+          academic_year_id: "EVAL: registry['academic_year'].id"
+          academic_term_id: "EVAL: registry['academic_term'].id"
+          school_id: "EVAL: registry['school'].id"
+          grade_id: "EVAL: registry['grade'].id"
+          grade_class_id: "EVAL: registry['grade_class'].id"
+          student_id: "EVAL: registry['student'].id"
+          currency_id: "EVAL: env.company.currency_id.id"
+
+      - step: "Confirm enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve enrollment"
+        action: "call"
+        target: "enrollment"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create first withdrawal draft"
+        action: "create"
+        model: "school_student_withdrawal"
+        save_as: "withdrawal"
+        values:
+          date: "2024-08-01"
+          student_id: "EVAL: registry['student'].id"
+          reason_type: "dropout"
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
+
+      - step: "Assert first withdrawal created in draft"
+        action: "assert"
+        target: "withdrawal"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Creating a second withdrawal for the same student must be rejected"
+        action: "create"
+        model: "school_student_withdrawal"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "is already draft or"
+        values:
+          date: "2024-08-01"
+          student_id: "EVAL: registry['student'].id"
+          reason_type: "resignation"
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
