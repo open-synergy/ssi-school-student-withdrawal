@@ -126,6 +126,11 @@ scenarios:
           student_id: "EVAL: registry['student'].id"
           reason_type: "resignation"
           reason: "Family relocation to another city."
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
 
       - step: "Assert withdrawal created in draft"
         action: "assert"
@@ -300,6 +305,11 @@ scenarios:
           student_id: "EVAL: registry['student'].id"
           reason_type: "dropout"
           reason: "Chronic non-attendance without any parental response."
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
 
       - step: "Assert withdrawal captured the active enrollment"
         action: "assert"
@@ -471,6 +481,11 @@ scenarios:
           student_id: "EVAL: registry['student'].id"
           reason_type: "no_news"
           reason: "Student and parents unreachable for over one month."
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
 
       - step: "Confirm withdrawal"
         action: "call"
@@ -633,6 +648,11 @@ scenarios:
           date: "2024-08-01"
           student_id: "EVAL: registry['student'].id"
           reason_type: "dropout"
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
 
       - step: "Assert withdrawal created in draft"
         action: "assert"
@@ -773,6 +793,11 @@ scenarios:
           date: "2024-08-01"
           student_id: "EVAL: registry['student'].id"
           reason_type: "dropout"
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
 
       - step: "Assert first withdrawal created in draft"
         action: "assert"
@@ -792,3 +817,8 @@ scenarios:
           date: "2024-08-01"
           student_id: "EVAL: registry['student'].id"
           reason_type: "resignation"
+          # Required because later steps read this document back as
+          # base.user_admin: school_student_withdrawal_internal_user_rule
+          # only exposes records the reading user owns, and the default
+          # responsible would otherwise be the superuser that created it.
+          user_id: "REF: base.user_admin"
