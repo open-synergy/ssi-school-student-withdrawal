@@ -20,6 +20,7 @@
         "ssi_transaction_done_mixin",
         "ssi_transaction_cancel_mixin",
         "ssi_decorator",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category/school_student_withdrawal.xml",
