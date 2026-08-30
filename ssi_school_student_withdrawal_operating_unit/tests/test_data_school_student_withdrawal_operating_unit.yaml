@@ -1,0 +1,84 @@
+scenarios:
+  - name: "School Student Withdrawal Operating Unit - operating_unit_id is stored"
+    steps:
+      - step: "Setup - create partner for Operating Unit A"
+        action: "create"
+        model: "res.partner"
+        save_as: "ou_partner"
+        values:
+          name: "Withdrawal Operating Unit A Partner"
+
+      - step: "Setup - create Operating Unit A"
+        action: "create"
+        model: "operating.unit"
+        save_as: "ou"
+        values:
+          name: "Withdrawal Operating Unit A"
+          code: "OUSW1"
+          company_id: "REF: base.main_company"
+          partner_id: "EVAL: registry['ou_partner'].id"
+
+      - step: "Setup - create grade type"
+        action: "create"
+        model: "school_grade_type"
+        save_as: "grade_type"
+        values:
+          name: "Grade Type for Withdrawal OU Test 1"
+          code: "GTSWOU1"
+          sequence: 10
+
+      - step: "Setup - create school"
+        action: "create"
+        model: "school"
+        save_as: "school"
+        values:
+          name: "School for Withdrawal OU Test 1"
+          code: "SCHSWOU1"
+          grade_type_id: "EVAL: registry['grade_type'].id"
+
+      - step: "Setup - create student contact"
+        action: "create"
+        model: "res.partner"
+        save_as: "contact"
+        values:
+          name: "Student Contact Withdrawal OU Test 1"
+
+      - step: "Setup - create student"
+        action: "create"
+        model: "school_student"
+        save_as: "student"
+        values:
+          name: "Student Withdrawal OU Test 1"
+          code: "STUSWOU1"
+          contact_id: "EVAL: registry['contact'].id"
+          school_id: "EVAL: registry['school'].id"
+
+      - step: "Create withdrawal with explicit operating_unit_id"
+        action: "create"
+        model: "school_student_withdrawal"
+        save_as: "withdrawal"
+        values:
+          date: "2024-08-01"
+          student_id: "EVAL: registry['student'].id"
+          reason_type: "dropout"
+          operating_unit_id: "EVAL: registry['ou'].id"
+
+      - step: "Assert withdrawal created in draft"
+        action: "assert"
+        target: "withdrawal"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Assert operating_unit_id is stored on the withdrawal"
+        action: "search"
+        model: "school_student_withdrawal"
+        domain:
+          - ["id", "=", "EVAL: registry['withdrawal'].id"]
+          - ["operating_unit_id", "=", "EVAL: registry['ou'].id"]
+        save_as: "check_ou_stored"
+        expect_count: 1
