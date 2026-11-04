@@ -157,7 +157,7 @@ msgid ""
 msgstr ""
 "Kebijakan persetujuan\n"
 "\n"
-"* Jika aktif, pengguna dapat melihat dan menekan tombol 'Setujui'"
+"* Jika pengguna aktif dapat melihat dan mengeksekusi tombol 'Setujui'"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__approved
@@ -239,7 +239,7 @@ msgstr "Mitra Perusahaan"
 #. module: ssi_school_student_withdrawal
 #: model:res.groups,name:ssi_school_student_withdrawal.school_student_withdrawal_company_child_group
 msgid "Company and All Child Companies"
-msgstr "Perusahaan dan Seluruh Perusahaan Anak"
+msgstr "Perusahaan dan Semua Perusahaan Turunan"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__company_id
@@ -252,7 +252,7 @@ msgstr ""
 "Perusahaan pemilik dokumen\n"
 "\n"
 "* Terisi otomatis dengan perusahaan pengguna.\n"
-"  Perusahaan bawaan dapat diubah"
+"  Perusahaan default dapat diubah"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__confirm_ok
@@ -263,7 +263,7 @@ msgid ""
 msgstr ""
 "Kebijakan konfirmasi\n"
 "\n"
-"* Jika aktif, pengguna dapat melihat dan menekan tombol 'Konfirmasi'"
+"* Jika pengguna aktif dapat melihat dan mengeksekusi tombol 'Konfirmasi'"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__create_uid
@@ -292,9 +292,9 @@ msgid ""
 "\n"
 "* If active user can see and execute 'Done' button"
 msgstr ""
-"Kebijakan penyelesaian\n"
+"Kebijakan Selesai\n"
 "\n"
-"* Jika aktif, pengguna dapat melihat dan menekan tombol 'Selesai'"
+"* Jika aktif, pengguna dapat melihat dan mengeksekusi tombol 'Selesai'"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields.selection,name:ssi_school_student_withdrawal.selection__school_student_withdrawal__reason_type__dropout
@@ -324,12 +324,12 @@ msgstr "Pengikut (Mitra)"
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Ikon Font Awesome, mis. fa-tasks"
+msgstr "Ikon Font Awesome mis. fa-tasks"
 
 #. module: ssi_school_student_withdrawal
 #: model_terms:ir.ui.view,arch_db:ssi_school_student_withdrawal.school_student_withdrawal_view_search
 msgid "Group By"
-msgstr "Kelompokkan Menurut"
+msgstr "Kelompokkan Berdasarkan"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__id
@@ -344,7 +344,7 @@ msgstr "Ikon"
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "Ikon untuk menandai aktivitas pengecualian."
+msgstr "Ikon untuk menunjukkan aktivitas pengecualian."
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__message_needaction
@@ -355,7 +355,7 @@ msgstr "Jika dicentang, pesan baru memerlukan perhatian Anda."
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__message_has_error
 msgid "If checked, some messages have a delivery error."
-msgstr "Jika dicentang, sebagian pesan mengalami kesalahan pengiriman."
+msgstr "Jika dicentang, beberapa pesan mengalami kesalahan pengiriman."
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__message_is_follower
@@ -389,9 +389,9 @@ msgid ""
 "\n"
 "* If active user can edit document number"
 msgstr ""
-"Kebijakan pengisian nomor manual\n"
+"Kebijakan penetapan nomor manual\n"
 "\n"
-"* Jika aktif, pengguna dapat mengubah nomor dokumen"
+"* Jika aktif, pengguna dapat mengedit nomor dokumen"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__message_has_error
@@ -451,7 +451,7 @@ msgstr "Jumlah Tindakan"
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__message_has_error_counter
 msgid "Number of errors"
-msgstr "Jumlah kesalahan"
+msgstr "Jumlah Kesalahan"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__message_needaction_counter
@@ -499,7 +499,7 @@ msgid ""
 msgstr ""
 "Kebijakan penolakan\n"
 "\n"
-"* Jika aktif, pengguna dapat melihat dan menekan tombol 'Tolak'"
+"* Jika pengguna aktif dapat melihat dan mengeksekusi tombol 'Tolak'"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__rejected
@@ -530,7 +530,7 @@ msgid ""
 msgstr ""
 "Kebijakan mulai ulang persetujuan\n"
 "\n"
-"* Jika aktif, pengguna dapat melihat dan menekan tombol 'Mulai Ulang Persetujuan'"
+"* Jika pengguna aktif dapat melihat dan mengeksekusi tombol 'Mulai Ulang Persetujuan'"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__restart_ok
@@ -541,7 +541,7 @@ msgid ""
 msgstr ""
 "Kebijakan mulai ulang\n"
 "\n"
-"* Jika aktif, pengguna dapat melihat dan menekan tombol 'Mulai Ulang'"
+"* Jika aktif, pengguna dapat melihat dan mengeksekusi tombol 'Mulai Ulang'"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__reviewer_id
@@ -568,9 +568,9 @@ msgid ""
 "Planned: Future activities."
 msgstr ""
 "Status berdasarkan aktivitas\n"
-"Terlambat: Tanggal jatuh tempo sudah lewat\n"
+"Terlambat: Tanggal jatuh tempo telah lewat\n"
 "Hari ini: Tanggal aktivitas adalah hari ini\n"
-"Terencana: Aktivitas mendatang."
+"Direncanakan: Aktivitas di masa depan."
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__student_id
@@ -637,15 +637,15 @@ msgstr ""
 "\n"
 "* Pengenal unik transaksi\n"
 "* Biarkan '/' untuk menghasilkan nomor secara otomatis\n"
-"* Ubah '/' menjadi nomor/pengenal apa pun untuk mengisi nomor secara manual.\n"
-"  Pengisian nomor manual dapat dilakukan pada status 'Draf'\n"
-"  Hanya pengguna dengan kebijakan 'Dapat Mengisi Nomor Dokumen Manual' yang dapat mengisi nomor secara manual.\n"
+"* Ubah '/' menjadi nomor/pengenal apa pun untuk menetapkan nomor secara manual.\n"
+"  Penetapan nomor manual dapat dilakukan pada status 'Draf'\n"
+"  Hanya pengguna dengan kebijakan 'Dapat Menetapkan Nomor Manual' yang dapat menetapkan nomor secara manual.\n"
 "* Transaksi dengan nomor selain '/' tidak dapat dihapus."
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "Jenis aktivitas pengecualian pada rekaman."
+msgstr "Jenis aktivitas pengecualian pada catatan."
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__message_unread
@@ -673,9 +673,9 @@ msgid ""
 msgstr ""
 "Pengguna yang bertanggung jawab atas dokumen\n"
 "\n"
-"* Pengguna pembuat dapat berbeda dengan pengguna penanggung jawab\n"
+"* Pembuat dokumen dapat berbeda dengan pengguna penanggung jawab\n"
 "* Terisi otomatis dengan pengguna yang memulai pembuatan dokumen.\n"
-"  Penanggung jawab bawaan dapat diubah."
+"  Penanggung jawab default dapat diubah."
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,help:ssi_school_student_withdrawal.field_school_student_withdrawal__reviewer_id
@@ -684,7 +684,7 @@ msgid ""
 "\n"
 "* Unless it configured to approve reviewer does not equal to approver"
 msgstr ""
-"Pengguna yang bertanggung jawab memeriksa dokumen\n"
+"Pengguna yang bertanggung jawab meninjau dokumen\n"
 "\n"
 "* Kecuali dikonfigurasi untuk menyetujui, pemeriksa tidak sama dengan penyetuju"
 
@@ -701,7 +701,7 @@ msgstr "Validator"
 #. module: ssi_school_student_withdrawal
 #: model:res.groups,name:ssi_school_student_withdrawal.school_student_withdrawal_viewer_group
 msgid "Viewer"
-msgstr "Pelihat"
+msgstr "Penampil"
 
 #. module: ssi_school_student_withdrawal
 #: model:ir.model.fields,field_description:ssi_school_student_withdrawal.field_school_student_withdrawal__website_message_ids
